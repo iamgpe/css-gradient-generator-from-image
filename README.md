@@ -1,6 +1,8 @@
 # Css gradient generator from image
 Generate gradient (css) from image colors with theses steps
 
+(documentation is not complete because I was a bit lazy, but it will come later)
+
 - Recovers the colors used on an image
 - Groups them in clusters by color type
 - Retrieves the most used colors
