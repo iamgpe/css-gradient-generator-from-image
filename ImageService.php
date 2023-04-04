@@ -2,12 +2,13 @@
 
 namespace App\Http\Services;
 
-use App\Http\Enum\CacheKeysEnum;
 use GdImage;
-use Illuminate\Support\Facades\Cache;
 
+/**
+ * A service for generating CSS gradients from images.
+ */
 class ImageService
-{
+{   
     /**
      * Calculates the luminance of a given color, based on its RGB values.
      *
@@ -116,6 +117,13 @@ class ImageService
         return $palette;
     }
 
+    /**
+     * Sorts a color palette by luminance, from dark to light.
+     *
+     * @param array $palette The color palette to sort. The palette should be an array of color values, where each value is an
+     *                       associative array with 'red', 'green' and 'blue' keys, each representing an integer between 0 and 255.
+     * @return array The sorted color palette.
+     */
     private function sortByLuminance(array $palette): array
     {
         uasort($palette, function ($a, $b) {
@@ -128,31 +136,49 @@ class ImageService
         return $palette;
     }
 
-    private function generateGradient(array $palette): string
+    /**
+     * Generates a CSS gradient string from a color palette.
+     *
+     * @param array $palette The color palette to generate the gradient from. The palette should be an array of color values, where each value is an
+     *                       associative array with 'red', 'green' and 'blue' keys, each representing an integer between 0 and 255.
+     * @return string The CSS gradient string.
+     */
+    private function generateGradient(array $palette, string $direction = 'left', string $gradientAddition = ''): string
     {
-        $gradient = 'linear-gradient(to left';
+        $gradient = 'linear-gradient(to ' . $direction;
 
         foreach ($palette as $color) {
             $gradient .= sprintf(',rgba(%d,%d,%d,%.1f)', $color['red'], $color['green'], $color['blue'], 1);
         }
 
-        $gradient .= ',rgb(var(--page-background)))';
+        if ($gradientAddition !== '') {
+            $gradient .= ',' . $gradientAddition);
+        }
+        
+        $gradient .= ')';
 
         return $gradient;
     }
 
+    /**
+     * Generates a CSS gradient from an image, based on the colors in the image.
+     *
+     * The function first generates a color palette for the image using the k-means algorithm, and then sorts the palette by luminance,
+     * from dark to light. It then generates a CSS gradient string from the sorted palette, with the colors in the gradient going from
+     * dark to light.
+     *
+     * The function also caches the generated gradient string using Laravel's Cache facade, using the URL of the input image as the cache key.
+     * The cached value is stored for one month.
+     *
+     * @param string $imageURL The URL of the image to generate the gradient from.
+     * @return string The generated CSS gradient string.
+     */
     public function generateCssGradientFromImage(string $imageURL): string
     {
-        $cacheKey = CacheKeysEnum::mountKey(CacheKeysEnum::MOVIE_IMAGE_GRADIENT, compact('imageURL'));
+        $image = imagecreatefromjpeg($imageURL);
+        $palette = $this->sortByLuminance($this->imageColorPalette($image, 2));
+        $gradient = $this->generateGradient($palette);
 
-        if (!Cache::has($cacheKey)) {
-            $image = imagecreatefromjpeg($imageURL);
-            $palette = $this->sortByLuminance($this->imageColorPalette($image, 2));
-            $gradient = $this->generateGradient($palette);
-
-            Cache::put($cacheKey, $gradient, now()->addMonth());
-        }
-
-        return Cache::get($cacheKey);
+        return $gradient;
     }
 }
