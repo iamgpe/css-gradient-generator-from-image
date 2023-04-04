@@ -1,6 +1,20 @@
 <?php
 
 if (!function_exists('kmeans')) {
+    /**
+     * Applies the k-means clustering algorithm to a set of points.
+     *
+     * The function divides the input points into $k clusters by iteratively assigning each point to the closest centroid, and
+     * then updating the centroids to be the mean of the points in each cluster. The algorithm repeats until convergence or
+     * the maximum number of iterations is reached.
+     *
+     * @param array $points An array of points to cluster. Each point should be an array of numerical values representing its
+     *                      dimensions.
+     * @param int $k The number of clusters to divide the points into.
+     * @param int $maxIterations The maximum number of iterations to perform. Defaults to PHP_INT_MAX.
+     * @return array An array of clusters, each containing the points assigned to it. Each cluster is itself an array of points,
+     *               with each point represented as an array of numerical values representing its dimensions.
+     */
     function kmeans(array $points, int $k, int $maxIterations = PHP_INT_MAX): array
     {
         // Initialize centroids randomly
@@ -53,6 +67,20 @@ if (!function_exists('kmeans')) {
 }
 
 if (!function_exists('kmeans_distance')) {
+    /**
+     * Computes the Euclidean distance between two points.
+     *
+     * The Euclidean distance between two points in a two-dimensional space is the length of the straight line segment connecting 
+     * the two points. In higher-dimensional spaces, the Euclidean distance between two points is the square root of the sum of the 
+     * squared differences of their coordinates.
+     *
+     * In the context of the kmeans() function, the Euclidean distance is used to determine the distance between each point and the
+     * centroids of the clusters. The points are assigned to the closest centroid based on their Euclidean distance to that centroid.
+     *
+     * @param array $point1 The first point, represented as an array of numerical values representing its dimensions.
+     * @param array $point2 The second point, represented as an array of numerical values representing its dimensions.
+     * @return float The Euclidean distance between the two points.
+     */
     function kmeans_distance(array $point1, array $point2): float
     {
         $sum = 0;
