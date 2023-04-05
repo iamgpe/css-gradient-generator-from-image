@@ -167,9 +167,6 @@ class ImageService
      * from dark to light. It then generates a CSS gradient string from the sorted palette, with the colors in the gradient going from
      * dark to light.
      *
-     * The function also caches the generated gradient string using Laravel's Cache facade, using the URL of the input image as the cache key.
-     * The cached value is stored for one month.
-     *
      * @param string $imageURL The URL of the image to generate the gradient from.
      * @return string The generated CSS gradient string.
      */
